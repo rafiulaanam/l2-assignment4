@@ -4,7 +4,7 @@
   "description": "https://github.com/Porgramming-Hero-web-course/l2b2a3-course-review-rafiulaanam",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node dist/server.js",
+    "start": "node dist/server.js",
     "build": "tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "lint": "eslint src --ignore-path .eslintignore --ext .ts",
