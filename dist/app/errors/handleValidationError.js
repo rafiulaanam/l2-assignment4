@@ -9,9 +9,15 @@ const handleValidationError = (err) => {
     });
     const statusCode = 400;
     return {
-        statusCode,
+        success: false,
         message: 'Validation Error',
+        errorMessage: 'Validation failed. Please check the provided data.',
+        statusCode,
         errorSources,
+        errorDetails: {
+            name: err.name,
+            message: err.message,
+        },
     };
 };
 exports.default = handleValidationError;

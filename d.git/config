@@ -6,7 +6,7 @@
 	symlinks = false
 	ignorecase = true
 [remote "origin"]
-	url = https://github.com/Porgramming-Hero-web-course/l2b2a3-course-review-rafiulaanam.git
+	url = https://github.com/Porgramming-Hero-web-course/l2b2a4-course-review-with-auth-rafiulaanam.git
 	fetch = +refs/heads/*:refs/remotes/origin/*
 [branch "main"]
 	remote = origin

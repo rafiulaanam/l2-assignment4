@@ -18,7 +18,7 @@ const courseDetailsSchema = new Schema<CourseDetails>({
 const courseSchema = new Schema<TCourse>({
   title: String,
   instructor: String,
-  categoryId: String,
+  categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
   price: Number,
   tags: [tagSchema],
   startDate: String,
@@ -27,6 +27,7 @@ const courseSchema = new Schema<TCourse>({
   provider: String,
   durationInWeeks: Number,
   details: courseDetailsSchema,
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 

@@ -56,15 +56,6 @@ const getBestCoursesByReview = (0, catchAsync_1.default)((req, res) => __awaiter
         data: result,
     });
 }));
-// const getAllStudents: RequestHandler = catchAsync(async (req, res) => {
-//   const result = await StudentServices.getAllStudentsFromDB(req.query);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Student are retrieved successfully',
-//     data: result,
-//   });
-// });
 const updateCourse = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { courseId } = req.params;
     const result = yield course_service_1.CourseServices.updateCoursesIntoDB(courseId, req.body);
@@ -75,16 +66,6 @@ const updateCourse = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result,
     });
 }));
-// const deleteStudent = catchAsync(async (req, res) => {
-//   const { id } = req.params;
-//   const result = await StudentServices.deleteStudentFromDB(id);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Student is deleted successfully',
-//     data: result,
-//   });
-// });
 exports.CourseControllers = {
     createCourse,
     getAllFilteredCourses,

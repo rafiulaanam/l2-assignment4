@@ -20,7 +20,7 @@ Make sure you have the following installed:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/rafiulaanam/backend-project.git
+   git clone https://github.com/Porgramming-Hero-web-course/l2b2a3-course-review-rafiulaanam.git
 
 
 #
@@ -32,5 +32,5 @@ Make sure you have the following installed:
 
 ## Live Demo
 
-https://l2-b2-assignment-02-5zywwg4ri-rafiulaanam.vercel.app/
+https://l2-b2-assignment-03-chi.vercel.app/
 

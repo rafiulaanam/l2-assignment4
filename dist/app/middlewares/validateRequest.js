@@ -13,7 +13,7 @@ const validateRequest = (schema) => {
     return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             // validation check
-            //if everything allright next() ->
+            //if everything alright next() ->
             // console.log(req.body, 'req.body');
             yield schema.parseAsync({
                 body: req.body,

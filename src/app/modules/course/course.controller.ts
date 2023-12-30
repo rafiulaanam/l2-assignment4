@@ -54,16 +54,7 @@ const getBestCoursesByReview = catchAsync(async (req, res) => {
   });
 });
 
-// const getAllStudents: RequestHandler = catchAsync(async (req, res) => {
-//   const result = await StudentServices.getAllStudentsFromDB(req.query);
 
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Student are retrieved successfully',
-//     data: result,
-//   });
-// });
 
 const updateCourse = catchAsync(async (req, res) => {
   const { courseId } = req.params;
@@ -80,17 +71,7 @@ const updateCourse = catchAsync(async (req, res) => {
   });
 });
 
-// const deleteStudent = catchAsync(async (req, res) => {
-//   const { id } = req.params;
-//   const result = await StudentServices.deleteStudentFromDB(id);
 
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Student is deleted successfully',
-//     data: result,
-//   });
-// });
 
 export const CourseControllers = {
     createCourse,

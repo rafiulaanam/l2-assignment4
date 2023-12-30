@@ -12,12 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseServices = void 0;
 const review_model_1 = require("../review/review.model");
 const course_model_1 = require("./course.model");
+const course_utils_1 = require("./course.utils");
 const createCourseIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield course_model_1.CourseModel.create(payload);
+    const durationInWeeks = (0, course_utils_1.calculateDurationInWeeks)(payload.startDate, payload.endDate);
+    const payloadWithDuration = Object.assign(Object.assign({}, payload), { durationInWeeks });
+    const result = yield course_model_1.CourseModel.create(payloadWithDuration);
     return result;
 });
 const getCourseByIdWithReviewFromDB = (courseId) => __awaiter(void 0, void 0, void 0, function* () {
-    const course = yield course_model_1.CourseModel.findById(courseId);
+    const course = yield course_model_1.CourseModel.findById(courseId)
+        .populate('createdBy', '_id username email role');
     // Find reviews for the course
     const reviews = yield review_model_1.ReviewModel.find({ courseId: courseId });
     return {
@@ -59,21 +63,26 @@ const getFilteredCoursesFromDB = (query) => __awaiter(void 0, void 0, void 0, fu
         sort[sortBy] = sortOrder === "asc" ? 1 : -1;
     // Fetch courses based on filters, sorting, and pagination
     const courses = yield course_model_1.CourseModel.find(filter)
+        .populate('createdBy', '_id username email role')
         .sort(sort)
         .skip((pageNumber - 1) * limitNumber)
         .limit(limitNumber);
     // Count total number of courses matching the filter
     const total = yield course_model_1.CourseModel.countDocuments(filter);
     // return courses
-    return { meta: {
+    return {
+        meta: {
             page: pageNumber,
             limit: limitNumber,
             total: total,
         },
-        courses };
+        courses,
+    };
 });
 const updateCoursesIntoDB = (courseId, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const updatedCourse = yield course_model_1.CourseModel.findByIdAndUpdate(courseId, payload, { new: true });
+    const updatedCourse = yield course_model_1.CourseModel.findByIdAndUpdate(courseId, payload, {
+        new: true,
+    });
     return updatedCourse;
 });
 const getBestCourseFromDB = () => __awaiter(void 0, void 0, void 0, function* () {

@@ -1,14 +1,23 @@
 import { ReviewModel } from "../review/review.model";
 import { TCourse } from "./course.interface";
 import { CourseModel } from "./course.model";
+import { calculateDurationInWeeks } from "./course.utils";
 
 const createCourseIntoDB = async (payload: TCourse) => {
-  const result = await CourseModel.create(payload);
+  const durationInWeeks = calculateDurationInWeeks(
+    payload.startDate,
+    payload.endDate
+  );
+
+  const payloadWithDuration = { ...payload, durationInWeeks };
+
+  const result = await CourseModel.create(payloadWithDuration);
   return result;
 };
 
 const getCourseByIdWithReviewFromDB = async (courseId: string) => {
-  const course = await CourseModel.findById(courseId);
+  const course = await CourseModel.findById(courseId)
+  .populate('createdBy', '_id username email role')
 
   // Find reviews for the course
   const reviews = await ReviewModel.find({ courseId: courseId });
@@ -64,37 +73,34 @@ const getFilteredCoursesFromDB = async (query: Record<string, unknown>) => {
 
   // Fetch courses based on filters, sorting, and pagination
   const courses = await CourseModel.find(filter)
+  .populate('createdBy', '_id username email role')
     .sort(sort)
     .skip((pageNumber - 1) * limitNumber)
-    .limit(limitNumber);
+    .limit(limitNumber)
+    
 
   // Count total number of courses matching the filter
   const total = await CourseModel.countDocuments(filter);
-// return courses
-  return {meta: {
-    page: pageNumber,
-    limit: limitNumber,
-    total: total,
-  },
-  courses}
- };
+  // return courses
+  return {
+    meta: {
+      page: pageNumber,
+      limit: limitNumber,
+      total: total,
+    },
+    courses,
+  };
+};
 const updateCoursesIntoDB = async (
   courseId: string,
   payload: Partial<TCourse>
 ) => {
+  const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, payload, {
+    new: true,
+  });
 
-
-  const updatedCourse = await CourseModel.findByIdAndUpdate(
-    courseId,
-    payload,
-    { new: true }
-  );
- 
-return updatedCourse
+  return updatedCourse;
 };
-
-
-
 
 const getBestCourseFromDB = async () => {
   const result = await ReviewModel.aggregate([

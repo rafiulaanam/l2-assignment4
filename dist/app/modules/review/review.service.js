@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReviewServices = void 0;
 const review_model_1 = require("./review.model");
 const createReviewIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // const createdData = await UserModel.find
     const result = yield review_model_1.ReviewModel.create(payload);
     return result;
 });
