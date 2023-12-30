@@ -6,8 +6,8 @@ interface TUser {
   email: string;
   password: string;
   role: 'user' | 'admin';
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
   passwordChangeHistory:Array<{ password: string; timestamp: Date }>;
 }
 

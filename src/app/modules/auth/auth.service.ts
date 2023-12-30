@@ -39,106 +39,67 @@ const accessToken = jwt.sign(jwtPayload,config.jwt_access_secret as string,{
 };
 
 
-// const changePassword = async (user: JwtPayload,payload: TChangePassword) => {
-//   const { currentPassword, newPassword } =payload
-//   const userData = await UserModel.findOne({username:user.username});
 
-//   if (!userData) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-//   }
-//   const isCurrentPasswordMatched = await bcrypt.compare(currentPassword, userData?.password);
-
-//   if (!isCurrentPasswordMatched) {
-//     throw new AppError(httpStatus.FORBIDDEN, 'Current password does not match');
-//   }
-//   const passwordChangeHistory = userData?.passwordChangeHistory || [];
-
-
-//   const isPasswordInHistory = passwordChangeHistory.some(
-//     (history) => bcrypt.compareSync(newPassword, history.password)
-//   );
-
-// if (isPasswordInHistory) {
-//   throw new AppError(httpStatus.BAD_REQUEST, 'Password change failed. Cannot reuse previous passwords.');
-// }
-
-// const newHashedPassword = await bcrypt.hash(newPassword, Number(config.bcrypt_salt_rounds));
-// userData.password = newHashedPassword
-// // Store the new password in the password change history
-//  passwordChangeHistory.unshift({
-//   password: newHashedPassword,
-//   timestamp: new Date()
-// });
-// // Keep only the last 2 passwords in the history
-//  passwordChangeHistory.slice(0, 2);
-
-// // Save the updated user document
-
-//   const result = UserModel.findOneAndUpdate({
-//     username:userData.username,
-//     role:userData.role,
-//     email:userData.email,
-  
-//   },
-//   {
-//     password: newHashedPassword,
-//     passwordChangeHistory
-//   })
-
-//   await userData.save();
-
-//   // Optionally, you can return the updated user details
-//   return result
-// }
 const changePassword = async (user: JwtPayload, payload: TChangePassword) => {
   const { currentPassword, newPassword } = payload;
-  const userData = await UserModel.findOne({ username: user.username });
+    const userData = await UserModel.findOne({ username: user.username });
 
-  if (!userData) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
-  }
+    if (!userData) {
+      throw new AppError(httpStatus.NOT_FOUND, 'This user is not found!');
+    }
 
-  const isCurrentPasswordMatched = await bcrypt.compare(currentPassword, userData?.password);
+    const isCurrentPasswordMatched = await bcrypt.compare(currentPassword, userData?.password);
 
-  if (!isCurrentPasswordMatched) {
-    throw new AppError(httpStatus.FORBIDDEN, 'Current password does not match');
-  }
+    if (!isCurrentPasswordMatched) {
+      throw new AppError(httpStatus.FORBIDDEN, 'Current password does not match');
+    }
 
-  const passwordChangeHistory = userData?.passwordChangeHistory || [];
+    const passwordChangeHistory = userData?.passwordChangeHistory || [];
 
-  const isPasswordInHistory = passwordChangeHistory.some(
-    (history) => bcrypt.compareSync(newPassword, history.password)
-  );
+    const isPasswordInHistory = passwordChangeHistory.some(
+      (history) => bcrypt.compareSync(newPassword, history.password)
+    );
 
-  if (isPasswordInHistory) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Password change failed. Cannot reuse previous passwords.');
-  }
+    if (isPasswordInHistory) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Password change failed. Cannot reuse previous passwords.');
+    }
 
-  const newHashedPassword = await bcrypt.hash(newPassword, Number(config.bcrypt_salt_rounds));
+    const newHashedPassword = await bcrypt.hash(newPassword, Number(config.bcrypt_salt_rounds));
 
-  // Update the user's password change history
-  passwordChangeHistory.unshift({
-    password: newHashedPassword,
-    timestamp: new Date()
-  });
+    // Update the user's password change history
+    passwordChangeHistory.unshift({
+      password: newHashedPassword,
+      timestamp: new Date(),
+    });
 
-  // Keep only the last 2 passwords in the history
-  userData.passwordChangeHistory = passwordChangeHistory.slice(0, 2);
+    // Keep only the last 2 passwords in the history
+    const updatedHistory = passwordChangeHistory.slice(0, 2);
 
-  // Save the updated user document
-  userData.password = newHashedPassword;
+    // Update the user document using findOneAndUpdate
+    const result = await UserModel.findOneAndUpdate(
+      { username: user.username },
+      {
+        password: newHashedPassword,
+        passwordChangeHistory: updatedHistory,
+      },
+      { new: true }
+    );
 
-  await userData.save();
+    if (!result) {
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to update user password');
+    }
 
-  // Optionally, you can return the updated user details
-  return {
-    _id: userData._id,
-    username: userData.username,
-    email: userData.email,
-    role: userData.role,
-    createdAt: userData.createdAt,
-    updatedAt: userData.updatedAt
-  };
+    // Optionally, you can return the updated user details
+    const updatedUserDetails = {
+      _id: result._id,
+      username: result.username,
+      email: result.email,
+      role: result.role,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
+
+    return updatedUserDetails;
 };
 
 export const AuthServices = {

@@ -19,12 +19,20 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const createUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_service_1.UserServices.createUserIntoDB(req.body);
+    const formattedResponse = {
+        _id: result._id,
+        username: result.username,
+        email: result.email,
+        role: result.role,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+    };
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         // statusCode: 201,
         success: true,
-        message: 'User is created successfully',
-        data: result,
+        message: 'User registered successfully',
+        data: formattedResponse,
     });
 }));
 exports.UserControllers = {

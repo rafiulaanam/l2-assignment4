@@ -23,4 +23,6 @@ export interface TCourse {
   durationInWeeks: number;
   details: CourseDetails;
   createdBy : Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

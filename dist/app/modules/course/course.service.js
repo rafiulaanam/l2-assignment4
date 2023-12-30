@@ -8,11 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseServices = void 0;
+const http_status_1 = __importDefault(require("http-status"));
+const AppError_1 = __importDefault(require("../../errors/AppError"));
 const review_model_1 = require("../review/review.model");
 const course_model_1 = require("./course.model");
 const course_utils_1 = require("./course.utils");
+const user_model_1 = require("../user/user.model");
 const createCourseIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const durationInWeeks = (0, course_utils_1.calculateDurationInWeeks)(payload.startDate, payload.endDate);
     const payloadWithDuration = Object.assign(Object.assign({}, payload), { durationInWeeks });
@@ -23,7 +29,8 @@ const getCourseByIdWithReviewFromDB = (courseId) => __awaiter(void 0, void 0, vo
     const course = yield course_model_1.CourseModel.findById(courseId)
         .populate('createdBy', '_id username email role');
     // Find reviews for the course
-    const reviews = yield review_model_1.ReviewModel.find({ courseId: courseId });
+    const reviews = yield review_model_1.ReviewModel.find({ courseId: courseId })
+        .populate('createdBy', '_id username email role');
     return {
         course: course,
         reviews: reviews,
@@ -80,10 +87,44 @@ const getFilteredCoursesFromDB = (query) => __awaiter(void 0, void 0, void 0, fu
     };
 });
 const updateCoursesIntoDB = (courseId, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const updatedCourse = yield course_model_1.CourseModel.findByIdAndUpdate(courseId, payload, {
-        new: true,
-    });
-    return updatedCourse;
+    const existingCourse = yield course_model_1.CourseModel.findById(courseId);
+    if (!existingCourse) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'Course not found');
+    }
+    const createdByUser = yield user_model_1.UserModel.findById(existingCourse.createdBy);
+    if (!createdByUser) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
+    }
+    // Update the course fields based on the payload
+    existingCourse.set(payload);
+    // Optional: You can customize the updatedAt field
+    existingCourse.updatedAt = new Date();
+    // Save the changes
+    yield existingCourse.save();
+    // Create the response object with the desired structure
+    const response = {
+        _id: existingCourse._id,
+        title: existingCourse.title,
+        instructor: existingCourse.instructor,
+        categoryId: existingCourse.categoryId,
+        price: existingCourse.price,
+        tags: existingCourse.tags,
+        startDate: existingCourse.startDate,
+        endDate: existingCourse.endDate,
+        language: existingCourse.language,
+        provider: existingCourse.provider,
+        durationInWeeks: existingCourse.durationInWeeks,
+        details: existingCourse.details,
+        createdBy: {
+            _id: createdByUser._id,
+            username: createdByUser.username,
+            email: createdByUser.email,
+            role: createdByUser.role,
+        },
+        createdAt: existingCourse.createdAt,
+        updatedAt: existingCourse.updatedAt,
+    };
+    return response;
 });
 const getBestCourseFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield review_model_1.ReviewModel.aggregate([

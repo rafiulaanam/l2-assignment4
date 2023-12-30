@@ -24,11 +24,20 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
     //   secure: config.NODE_ENV === 'production',
     //   httpOnly: true,
     // });
+    const formattedResponse = {
+        user: {
+            _id: result.user._id,
+            username: result.user.username,
+            email: result.user.email,
+            role: result.user.role,
+        },
+        token: result.token,
+    };
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
         message: 'User is logged in successfully!',
-        data: result,
+        data: formattedResponse,
     });
 }));
 const changeUserPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

@@ -12,7 +12,7 @@ const courseDetailsSchema = new mongoose_1.Schema({
     description: String,
 });
 const courseSchema = new mongoose_1.Schema({
-    title: String,
+    title: { type: String, unique: true, required: true },
     instructor: String,
     categoryId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Category', required: true },
     price: Number,
@@ -24,5 +24,7 @@ const courseSchema = new mongoose_1.Schema({
     durationInWeeks: Number,
     details: courseDetailsSchema,
     createdBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
+    createdAt: { type: String, default: new Date().toISOString() },
+    updatedAt: { type: String, default: new Date().toISOString() }
 });
 exports.CourseModel = (0, mongoose_1.model)('Course', courseSchema);

@@ -1,7 +1,10 @@
+import httpStatus from "http-status";
+import AppError from "../../errors/AppError";
 import { ReviewModel } from "../review/review.model";
 import { TCourse } from "./course.interface";
 import { CourseModel } from "./course.model";
 import { calculateDurationInWeeks } from "./course.utils";
+import { UserModel } from "../user/user.model";
 
 const createCourseIntoDB = async (payload: TCourse) => {
   const durationInWeeks = calculateDurationInWeeks(
@@ -20,7 +23,8 @@ const getCourseByIdWithReviewFromDB = async (courseId: string) => {
   .populate('createdBy', '_id username email role')
 
   // Find reviews for the course
-  const reviews = await ReviewModel.find({ courseId: courseId });
+  const reviews = await ReviewModel.find({ courseId: courseId })
+  .populate('createdBy', '_id username email role')
 
   return {
     course: course,
@@ -95,11 +99,50 @@ const updateCoursesIntoDB = async (
   courseId: string,
   payload: Partial<TCourse>
 ) => {
-  const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, payload, {
-    new: true,
-  });
+  const existingCourse = await CourseModel.findById(courseId);
 
-  return updatedCourse;
+    if (!existingCourse) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Course not found');
+    }
+    const createdByUser = await UserModel.findById(existingCourse.createdBy);
+
+    if (!createdByUser) {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+    // Update the course fields based on the payload
+    existingCourse.set(payload);
+
+    // Optional: You can customize the updatedAt field
+    existingCourse.updatedAt = new Date();
+
+    // Save the changes
+    await existingCourse.save();
+
+    // Create the response object with the desired structure
+    const response = {
+      _id: existingCourse._id,
+      title: existingCourse.title,
+      instructor: existingCourse.instructor,
+      categoryId: existingCourse.categoryId,
+      price: existingCourse.price,
+      tags: existingCourse.tags,
+      startDate: existingCourse.startDate,
+      endDate: existingCourse.endDate,
+      language: existingCourse.language,
+      provider: existingCourse.provider,
+      durationInWeeks: existingCourse.durationInWeeks,
+      details: existingCourse.details,
+      createdBy: {
+        _id: createdByUser._id,
+        username: createdByUser.username,
+        email: createdByUser.email,
+        role: createdByUser.role,
+      },
+      createdAt: existingCourse.createdAt,
+      updatedAt: existingCourse.updatedAt,
+    };
+
+    return response;
 };
 
 const getBestCourseFromDB = async () => {

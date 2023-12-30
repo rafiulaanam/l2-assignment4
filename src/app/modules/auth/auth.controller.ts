@@ -11,12 +11,20 @@ const loginUser = catchAsync(async (req, res) => {
   //   secure: config.NODE_ENV === 'production',
   //   httpOnly: true,
   // });
-
+  const formattedResponse = {
+    user: {
+      _id: result.user._id,
+      username: result.user.username,
+      email: result.user.email,
+      role: result.user.role,
+    },
+    token: result.token,
+  };
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User is logged in successfully!',
-    data: result,
+    data: formattedResponse,
   });
 });
 const changeUserPassword = catchAsync(async (req, res) => {
